@@ -1,0 +1,111 @@
+---
+- name: Configure Elasticsearch
+  hosts: elasticsearch
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - default-jre
+        state: present
+        update_cache: yes
+
+    - name: Add Elasticsearch repository
+      ansible.builtin.apt_repository:
+        repo: "deb [trusted=yes] https://mirror.yandex.ru/mirrors/elastic/7/ stable main"
+        state: present
+
+    - name: Install Elasticsearch
+      apt:
+        name: elasticsearch
+        state: present
+        update_cache: yes
+    
+
+    - name: Configure Elasticsearch
+      template:
+        src: ../templates/elasticsearch.yml.j2
+        dest: /etc/elasticsearch/elasticsearch.yml
+        mode: '0644'
+      notify: restart elasticsearch
+
+    - name: Start and enable Elasticsearch
+      systemd:
+        name: elasticsearch
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart elasticsearch
+      systemd:
+        name: elasticsearch
+        state: restarted
+
+- name: Configure Kibana
+  hosts: kibana
+  become: yes
+  tasks:
+    - name: Add Kibana repository
+      apt_repository:
+        repo: deb [trusted=yes] https://mirror.yandex.ru/mirrors/elastic/7/ stable main
+        state: present
+
+    - name: Install Kibana
+      apt:
+        name: kibana
+        state: present
+        update_cache: yes
+
+    - name: Configure Kibana
+      template:
+        src: ../templates/kibana.yml.j2
+        dest: /etc/kibana/kibana.yml
+        mode: '0644'
+      notify: restart kibana
+
+    - name: Start and enable Kibana
+      systemd:
+        name: kibana
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart kibana
+      systemd:
+        name: kibana
+        state: restarted
+
+- name: Configure Filebeat on web servers
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Add Elastic repository
+      apt_repository:
+        repo: deb [trusted=yes] https://mirror.yandex.ru/mirrors/elastic/7/ stable main
+        state: present
+
+    - name: Install Filebeat
+      apt:
+        name: filebeat
+        state: present
+        update_cache: yes
+
+    - name: Configure Filebeat
+      template:
+        src: ../templates/filebeat.yml.j2
+        dest: /etc/filebeat/filebeat.yml
+        mode: '0644'
+      notify: restart filebeat
+
+    - name: Start and enable Filebeat
+      systemd:
+        name: filebeat
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart filebeat
+      systemd:
+        name: filebeat
+        state: restarted 

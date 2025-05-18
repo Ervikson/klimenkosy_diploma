@@ -1,0 +1,35 @@
+# Zabbix Server configuration file
+
+LogFile=/var/log/zabbix/zabbix_server.log
+LogFileSize=0
+PidFile=/run/zabbix/zabbix_server.pid
+DBHost={{ zabbix_db_host | default('localhost') }}
+DBName={{ zabbix_db_name | default('zabbix') }}
+DBUser={{ zabbix_db_user | default('zabbix') }}
+DBPassword={{ zabbix_db_password }}
+DBPort={{ zabbix_db_port | default('5432') }}
+
+# Listen port for Zabbix server
+ListenPort=10051
+
+# Timeout for communication with the database
+Timeout=4
+
+# Cache sizes (tune according to your resources)
+CacheSize=128M
+HistoryCacheSize=64M
+TrendCacheSize=64M
+
+# Housekeeping settings
+HousekeepingFrequency=1
+
+# Enable remote commands
+EnableRemoteCommands=1
+
+# AllowRoot=0
+
+# Log slow queries (optional)
+LogSlowQueries=3000
+
+# Include additional configuration files if needed
+# Include=/etc/zabbix/zabbix_server.conf.d/*.conf

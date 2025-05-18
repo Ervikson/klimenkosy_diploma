@@ -1,0 +1,21 @@
+[PHP]
+max_execution_time = 300
+memory_limit = 256M
+post_max_size = 16M
+upload_max_filesize = 2M
+max_input_time = 300
+date.timezone = {{ timezone | default('Europe/Moscow') }}
+
+; Error reporting
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors = Off
+log_errors = On
+error_log = /var/log/php_errors.log
+
+; Session settings
+session.save_handler = files
+session.save_path = "/var/lib/php/session"
+session.gc_maxlifetime = 1440
+
+; Zabbix frontend specific settings
+max_input_vars = 10000

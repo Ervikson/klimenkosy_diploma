@@ -1,0 +1,65 @@
+---
+- name: Install Docker on Ubuntu VM
+  hosts: elasticsearch
+  become: true
+
+  tasks:
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+        update_cache: yes
+
+    - name: Add Docker official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+        filename: docker
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker Engine
+      apt:
+        name: docker-ce
+        state: latest
+
+    - name: Ensure Docker service is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Ensure group "docker" exists
+      group:
+        name: docker
+        state: present
+
+    - name: Add current user to docker group
+      user:
+        name: "sergey"
+        groups: docker
+        append: yes
+
+    - name: Install Docker Compose (optional)
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Verify Docker installation
+      command: docker --version
+      register: docker_version
+
+    - debug:
+        var: docker_version.stdout
